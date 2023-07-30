@@ -9,8 +9,13 @@ class PineconeDBConnection(ExperimentalBaseConnection):
     def _connect(self, **kwargs):
         # Implement the connection setup here.
         # get params from secret
-        api_key = kwargs.get('api_key', None) or self._secrets['api_key']
-        environment = kwargs.get('environment', None) or self._secrets['environment']
+        try:
+            api_key = kwargs.get('api_key', None)
+            environment = kwargs.get('environment', None)
+        except Exception:
+            api_key = self._secrets['api_key']
+            environment = self._secrets['environment']
+
         # all connection params
         if api_key and environment is not None:
             try:
