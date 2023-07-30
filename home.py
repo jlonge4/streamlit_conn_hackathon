@@ -9,9 +9,9 @@ def clear_convo():
     st.session_state['generated'] = []
 
 
-def retrieve_inds():
+def retrieve_inds(key, env):
     conn = connection.PineconeDBConnection('pinecone')
-    conn._connect()
+    conn._connect(api_key=key, environment=env)
     inds = conn.fetch_inds()
     return inds
 
@@ -32,13 +32,13 @@ if __name__ == '__main__':
     openai.api_key = key
     if pinecone_key and pinecone_env:
         st.sidebar.title('Pinecone Indexes:')
-        dbs = retrieve_inds()
+        dbs = retrieve_inds(pinecone_key, pinecone_env)
         index = st.sidebar.radio('Please select an index:', dbs, key="init")
         st.session_state['manual'] = index
         st.sidebar.title('Index Description')
         st.sidebar.code(get_description(), language='json')
     else:
-        st.toast('Did you forget to set your OPENAI_API_KEY?')
+        st.toast('Did you forget to set your Pinecone Key and Env?')
     clear_button = st.sidebar.button("Clear Conversation", key="clear")
     if clear_button:
         clear_convo()
@@ -58,7 +58,7 @@ if __name__ == '__main__':
 
     if user_input and submit_button:
         conn = connection.PineconeDBConnection('pinecone')
-        conn._connect()
+        conn._connect(api_key=pinecone_key, environment=pinecone_env)
         index = st.session_state['manual']
         if key:
             response = conn.query(index, user_input)
